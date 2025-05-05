@@ -2,7 +2,9 @@
 // p 1 ==> 5 * 0 + 1 = 1
 // p 2 ==> 5 * 1 + 1 = 6
 // p 3 ==> 5 * 2 + 1 = 11
-// end index = starting + subrange
+// end index = starting + subrange - 1
+
+// Count prime between x and y (INCLUSIVE)
 
 // USING SEND AND RECV ONLY
 
@@ -33,18 +35,24 @@ int main (int argc , char** argv)
     int x , y ;
     if(rank ==0)
     {
-        start= MPI_Wtime();
         int subrange, remainder, totalcount=0;
         printf("Enter Lower Bound: \n");
         scanf("%d", &x);
         printf("Enter Upper Bound: \n");
         scanf("%d", &y);
-        subrange = (y - x) / (size - 1);
-        remainder = (y-x) % (size-1);
+        if (x>y)
+        {
+            printf("Invalid Boundaries, The Upper Bound must be Greater, Program Termaniting... \n");
+            return 0;
+        }
+        start= MPI_Wtime();
+        subrange = (y - x + 1) / (size - 1);
+        remainder = (y - x + 1) % (size-1);
         for (int i = 1; i < size; i++)
         {
             MPI_Send( &subrange , 1 , MPI_INT , i , 22 , MPI_COMM_WORLD);
             MPI_Send( &x , 1 , MPI_INT , i , 44 , MPI_COMM_WORLD);
+            MPI_Send( &y , 1 , MPI_INT , i , 12 , MPI_COMM_WORLD);
             MPI_Send( &remainder , 1 , MPI_INT , i , 66 , MPI_COMM_WORLD);
 
         }
@@ -69,13 +77,14 @@ int main (int argc , char** argv)
 
         MPI_Recv( &subrange, 1 , MPI_INT , 0 , 22 , MPI_COMM_WORLD ,  &status);
         MPI_Recv( &x, 1 , MPI_INT , 0 , 44 , MPI_COMM_WORLD,  &status);
+        MPI_Recv( &y, 1 , MPI_INT , 0 , 12 , MPI_COMM_WORLD,  &status);
         MPI_Recv( &remainder, 1 , MPI_INT , 0 , 66 , MPI_COMM_WORLD,  &status);
 
         int startindex = subrange * (rank - 1) + x ;
         int endindex = startindex + (subrange-1);
         if( (rank-1) < remainder)
         {
-            startindex += rank-1;
+            startindex += (rank-1);
             endindex += rank;
         }
         else
@@ -83,11 +92,10 @@ int main (int argc , char** argv)
             startindex+=remainder;
             endindex+=remainder;
         }
-        printf("process %d from %d to %d \n",rank,startindex,endindex);
         if (endindex > y) endindex = y;
+        printf("process %d from %d to %d \n",rank,startindex,endindex);
         for (int i = startindex ; i<= endindex; i++)
-        {
-            if(i==endindex && is_prime(endindex+1)) partialcount++; 
+        { 
             if(is_prime(i)) partialcount++;
         }
 
@@ -96,7 +104,7 @@ int main (int argc , char** argv)
 
     }
 
-
+    MPI_Finalize();
 
     return 0 ;
 }
