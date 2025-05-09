@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         }
         end = MPI_Wtime();
         elapsed = end - start;
-        printf("Total Time: %f seconds \n", elapsed);
+        printf("Total Time of 2nd Approach: %f seconds \n", elapsed);
         printf("Total number of primes between %d and %d is: %d \n", x, y, totalcount);
     }
 

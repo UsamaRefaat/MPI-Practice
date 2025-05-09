@@ -57,7 +57,7 @@ int main(int argc, char **argv)
         MPI_Reduce(&partialcount, &totalcount, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
         end = MPI_Wtime();
         elapsed = end - start;
-        printf("Total Time: %f seconds \n", elapsed);
+        printf("Total Time in 1st Approach: %f seconds \n", elapsed);
         printf("Total number of primes between %d and %d is: %d \n", x, y, totalcount);
     }
 
