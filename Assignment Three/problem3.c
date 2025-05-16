@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include<stdlib.h>
-#include<math.h>
+#include <stdlib.h>
+#include <math.h>
 #include <omp.h>
-#include<mpi.h>
+#include <mpi.h>
 #include <time.h>
 
 int main (int argc , char** argv){
@@ -15,10 +15,6 @@ MPI_Comm_size( MPI_COMM_WORLD, &worldsize);
 int worldrank;
 MPI_Comm_rank( MPI_COMM_WORLD , &worldrank);
 
-char processor_name [MPI_MAX_PROCESSOR_NAME];
-int namelen ;
-MPI_Get_processor_name(processor_name , &namelen);
-
 long long psum =0 ;
 long long totalsum=0;
 int elementperprocess;
@@ -26,7 +22,7 @@ int remainder;
 int startindex;
 int *array;
 int *partialarray;
-int n = 10000003;
+int n = 1000003;
 MPI_Status status;
 
 if(worldrank ==0)
@@ -80,7 +76,7 @@ else
             psum+=partialarray[i];
         } 
         MPI_Reduce( &psum, &totalsum , 1 , MPI_LONG_LONG , MPI_SUM , 0 , MPI_COMM_WORLD);
-
+        free(partialarray);
 }
 
 MPI_Finalize();

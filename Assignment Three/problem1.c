@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include<stdlib.h>
-#include<math.h>
+#include <stdlib.h>
+#include <math.h>
 #include <omp.h>
 #include <time.h>
 
@@ -10,7 +10,11 @@ printf("Enter Size: \n");
 int n ;
 scanf("%d",&n);
 
-int mat [n][n] ;
+int** mat = malloc(n * sizeof(int*));
+for (int i = 0; i < n; i++) {
+    mat[i] = malloc(n * sizeof(int));
+}
+
 printf("Enter Matrix A: \n");
 for(int i = 0 ; i<n; i++) 
 {
@@ -23,7 +27,9 @@ for (int j = 0; j < n; j++)
 }
 
 printf("Enter Vector v: \n");
-int vec [n];
+int* vec = malloc(n * sizeof(int));
+int* res = malloc(n * sizeof(int));
+
 for (int i = 0; i < n; i++)
 {
     int x;
@@ -31,13 +37,11 @@ for (int i = 0; i < n; i++)
     vec[i]=x;
 }
 
-int res [n];
 for (int i = 0; i < n; i++)
 {
     res[i]=0;
 }
-clock_t start, end;
-start = clock();
+
 #pragma omp parallel for
 for(int i = 0 ; i<n; i++) 
 {
@@ -46,15 +50,19 @@ for (int j = 0; j < n; j++)
     res[i]+= vec[j] * mat[i][j];
 }
 }
-end= clock();
-double total = (double) (end-start)/ CLOCKS_PER_SEC;
-printf("total time %f\n",total);
-printf("Resulting vector r: ");
+
+printf("Resulting vector r: \n");
 for (int j = 0; j < n; j++)
 {
     printf  ( "%d ", res[j] );
 }
-printf("\n");
+    printf("\n");
 
-return 0;
+for (int i = 0; i < n; i++) {
+    free(mat[i]);
+}
+    free(mat);
+    free(vec);
+    free(res);
+    return 0;
 }
