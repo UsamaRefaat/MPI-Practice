@@ -26,14 +26,12 @@ int remainder;
 int startindex;
 int *array;
 int *partialarray;
-int n = 1000000003;
+int n = 10000003;
 MPI_Status status;
 
 if(worldrank ==0)
 {
-
         array = malloc(n*sizeof(int));
-
         for (int i = 0; i <n; i++)
         {
             array[i]=i+1;
@@ -43,9 +41,11 @@ if(worldrank ==0)
         remainder = n%worldsize;
         int offset=0;
         int mastercount = elementperprocess + (remainder>0?1:0);
+
+        #pragma omp parallel for reduction(+:psum)
         for (int i = 0; i < mastercount; i++)
         {
-        psum+=array[i];
+            psum+=array[i];
         }
 
         offset+=mastercount;
@@ -74,6 +74,7 @@ else
         partialarray = malloc(recivedcount*sizeof(int));
         MPI_Recv( partialarray , recivedcount , MPI_INT , 0 , 13 , MPI_COMM_WORLD  ,  &status);
 
+        #pragma omp parallel for reduction(+:psum)
         for (int i = 0; i < recivedcount ; i++)
         {
             psum+=partialarray[i];
